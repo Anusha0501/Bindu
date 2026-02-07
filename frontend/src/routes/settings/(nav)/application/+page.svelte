@@ -30,6 +30,20 @@
 
 	let OPENAI_BASE_URL = $state<string | null>(null);
 
+	// Agent card state
+	type AgentSkill = { id: string; name: string; description?: string };
+	type AgentCard = {
+		name: string;
+		description?: string;
+		url?: string;
+		version?: string;
+		skills?: AgentSkill[];
+		capabilities?: { streaming?: boolean; pushNotifications?: boolean };
+	};
+	let agentCard = $state<AgentCard | null>(null);
+	let agentLoading = $state(true);
+	let agentError = $state<string | null>(null);
+
 	// Billing organization state
 	type BillingOrg = { sub: string; name: string; preferred_username: string };
 	let billingOrgs = $state<BillingOrg[]>([]);
@@ -44,6 +58,20 @@
 	}
 
 	onMount(async () => {
+		// Fetch agent card
+		try {
+			const res = await fetch('/api/agent-card');
+			if (res.ok) {
+				agentCard = await res.json();
+			} else {
+				agentError = 'Could not load agent info';
+			}
+		} catch (e) {
+			agentError = 'Agent not connected';
+		} finally {
+			agentLoading = false;
+		}
+
 		// Fetch debug config
 		try {
 			const cfg = await client.debug.config.get().then(handleResponse);
@@ -82,7 +110,115 @@
 </script>
 
 <div class="flex w-full flex-col gap-4">
+	<!-- Agent Info Section -->
 	<h2 class="text-center text-lg font-semibold text-gray-800 dark:text-gray-200 md:text-left">
+		Agent Info
+	</h2>
+	<div
+		class="rounded-xl border border-gray-200 bg-white p-4 shadow-sm dark:border-gray-700 dark:bg-gray-800"
+	>
+		{#if agentLoading}
+			<div class="flex items-center gap-2 text-sm text-gray-500">
+				<span class="size-2 animate-pulse rounded-full bg-gray-400"></span>
+				Loading agent info...
+			</div>
+		{:else if agentError}
+			<div class="flex items-center gap-2 text-sm text-gray-500">
+				<span class="size-2 rounded-full bg-red-500"></span>
+				{agentError}
+			</div>
+		{:else if agentCard}
+			<div class="flex flex-col gap-4">
+				<!-- Agent Name & Status -->
+				<div class="flex items-center gap-3">
+					<span class="size-2 animate-pulse rounded-full bg-green-500"></span>
+					<span class="text-lg font-semibold text-gray-900 dark:text-gray-100"
+						>{agentCard.name}</span
+					>
+					{#if agentCard.version}
+						<span
+							class="rounded bg-gray-100 px-2 py-0.5 text-[10px] font-medium text-gray-600 dark:bg-gray-700 dark:text-gray-400"
+							>v{agentCard.version}</span
+						>
+					{/if}
+				</div>
+
+				<!-- Description -->
+				{#if agentCard.description}
+					<p class="text-[13px] text-gray-600 dark:text-gray-400">{agentCard.description}</p>
+				{/if}
+
+				<!-- URL -->
+				{#if agentCard.url}
+					<div class="text-[12px]">
+						<span class="font-medium text-gray-500 dark:text-gray-500">Endpoint:</span>
+						<code
+							class="ml-1 break-all rounded bg-gray-100 px-1.5 py-0.5 font-mono text-[11px] text-gray-700 dark:bg-gray-700 dark:text-gray-300"
+							>{agentCard.url}</code
+						>
+					</div>
+				{/if}
+
+				<!-- Capabilities -->
+				{#if agentCard.capabilities}
+					<div class="flex flex-wrap gap-2">
+						{#if agentCard.capabilities.streaming}
+							<span
+								class="rounded-full bg-blue-100 px-2 py-0.5 text-[10px] font-medium text-blue-700 dark:bg-blue-900/30 dark:text-blue-400"
+								>Streaming</span
+							>
+						{/if}
+						{#if agentCard.capabilities.pushNotifications}
+							<span
+								class="rounded-full bg-purple-100 px-2 py-0.5 text-[10px] font-medium text-purple-700 dark:bg-purple-900/30 dark:text-purple-400"
+								>Push Notifications</span
+							>
+						{/if}
+					</div>
+				{/if}
+			</div>
+		{:else}
+			<div class="text-sm text-gray-500">No agent connected</div>
+		{/if}
+	</div>
+
+	<!-- Skills Section -->
+	{#if agentCard?.skills && agentCard.skills.length > 0}
+		<h2
+			class="mt-4 text-center text-lg font-semibold text-gray-800 dark:text-gray-200 md:text-left"
+		>
+			Skills
+		</h2>
+		<div
+			class="rounded-xl border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800"
+		>
+			<div class="divide-y divide-gray-100 dark:divide-gray-700">
+				{#each agentCard.skills as skill}
+					<div class="px-4 py-3">
+						<div class="flex items-center gap-2">
+							<span
+								class="rounded bg-green-100 px-1.5 py-0.5 text-[10px] font-medium text-green-700 dark:bg-green-900/30 dark:text-green-400"
+								>skill</span
+							>
+							<span class="text-[13px] font-medium text-gray-800 dark:text-gray-200"
+								>{skill.name}</span
+							>
+						</div>
+						{#if skill.description}
+							<p class="mt-1 text-[12px] text-gray-500 dark:text-gray-400">
+								{skill.description}
+							</p>
+						{/if}
+					</div>
+				{/each}
+			</div>
+		</div>
+	{/if}
+
+	<!-- Application Settings Section -->
+	<h2
+		class="mt-4 text-center text-lg font-semibold text-gray-800 dark:text-gray-200 md:text-left"
+	>
 		Application Settings
 	</h2>
 

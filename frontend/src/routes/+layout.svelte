@@ -15,6 +15,7 @@
 	import MobileNav from "$lib/components/MobileNav.svelte";
 	import titleUpdate from "$lib/stores/titleUpdate";
 	import WelcomeModal from "$lib/components/WelcomeModal.svelte";
+	import Footer from "$lib/components/Footer.svelte";
 	import ExpandNavigation from "$lib/components/ExpandNavigation.svelte";
 	import { setContext } from "svelte";
 	import { handleResponse, useAPIClient } from "$lib/APIClient";
@@ -282,6 +283,8 @@
 		<Toast message={currentError} />
 	{/if}
 	{@render children?.()}
+
+	<Footer />
 
 	{#if publicConfig.PUBLIC_PLAUSIBLE_SCRIPT_URL}
 		<script>

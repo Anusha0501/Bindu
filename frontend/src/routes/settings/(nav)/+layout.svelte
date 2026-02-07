@@ -13,6 +13,12 @@
 	import { isDesktop } from "$lib/utils/isDesktop";
 	import { debounce } from "$lib/utils/debounce";
 
+	// Agent card types for sidebar
+	type AgentSkill = { id: string; name: string };
+	type AgentCard = { name: string; skills?: AgentSkill[] };
+	let agentCard = $state<AgentCard | null>(null);
+	let agentLoading = $state(true);
+
 	interface Props {
 		data: LayoutData;
 		children?: import("svelte").Snippet;
@@ -27,14 +33,27 @@
 		if (
 			browser &&
 			isDesktop(window) &&
-			page.url.pathname === `${base}/settings` &&
-			!page.url.pathname.endsWith("/application")
+			page.url.pathname === `${base}/settings`
 		) {
-			goto(`${base}/settings/application`);
+			goto(`${base}/settings/agent`);
 		}
 	}
 
 	onMount(() => {
+		// Fetch agent card for sidebar
+		(async () => {
+			try {
+				const res = await fetch("/api/agent-card");
+				if (res.ok) {
+					agentCard = await res.json();
+				}
+			} catch (e) {
+				// ignore
+			} finally {
+				agentLoading = false;
+			}
+		})();
+
 		// Show content when not on the root settings page
 		showContent = page.url.pathname !== `${base}/settings`;
 		// Initial desktop redirect check
@@ -98,6 +117,50 @@
 			class="scrollbar-custom col-span-1 flex flex-col overflow-y-auto whitespace-nowrap rounded-r-xl bg-gradient-to-l from-gray-50 to-10% dark:from-gray-700/40 max-md:-mx-4 max-md:h-full md:pr-6"
 			class:max-md:hidden={showContent && browser}
 		>
+			<!-- Agent Info -->
+			<button
+				type="button"
+				onclick={() => goto(`${base}/settings/agent`)}
+				class="group flex h-9 w-full flex-none items-center gap-1 rounded-lg px-3 text-[13px] text-gray-600 dark:text-gray-300 md:rounded-xl md:px-3 {page
+					.url.pathname === `${base}/settings/agent`
+					? '!bg-gray-100 !text-gray-800 dark:!bg-gray-700 dark:!text-gray-200'
+					: 'bg-white dark:bg-gray-800'}"
+				aria-label="View agent info"
+			>
+				<span class="mr-1 size-2 rounded-full bg-green-500"></span>
+				Agent Info
+			</button>
+
+			<!-- Skills -->
+			{#if agentLoading}
+				<div class="px-3 py-2 text-xs text-gray-400">Loading skills...</div>
+			{:else if agentCard?.skills && agentCard.skills.length > 0}
+				<div class="mb-1 mt-3 px-3 text-[10px] font-semibold uppercase tracking-wide text-gray-400">
+					Skills
+				</div>
+				{#each agentCard.skills as skill}
+					<button
+						type="button"
+						onclick={() => goto(`${base}/settings/skill/${skill.id}`)}
+						class="group flex h-9 w-full flex-none items-center gap-1 rounded-lg px-3 text-[13px] text-gray-600 dark:text-gray-300 md:rounded-xl md:px-3 {page
+							.url.pathname === `${base}/settings/skill/${skill.id}`
+							? '!bg-gray-100 !text-gray-800 dark:!bg-gray-700 dark:!text-gray-200'
+							: 'bg-white dark:bg-gray-800'}"
+						aria-label="View skill {skill.name}"
+					>
+						<span
+							class="rounded bg-green-100 px-1 py-0.5 text-[9px] font-medium text-green-700 dark:bg-green-900/30 dark:text-green-400"
+							>fn</span
+						>
+						<span class="truncate">{skill.name}</span>
+					</button>
+				{/each}
+			{/if}
+
+			<!-- Settings -->
+			<div class="mb-1 mt-3 px-3 text-[10px] font-semibold uppercase tracking-wide text-gray-400">
+				Preferences
+			</div>
 			<button
 				type="button"
 				onclick={() => goto(`${base}/settings/application`)}
@@ -105,10 +168,10 @@
 					.url.pathname === `${base}/settings/application`
 					? '!bg-gray-100 !text-gray-800 dark:!bg-gray-700 dark:!text-gray-200'
 					: 'bg-white dark:bg-gray-800'}"
-				aria-label="Configure application settings"
+				aria-label="Configure settings"
 			>
 				<IconGear class="mr-0.5 text-xxs" />
-				Application Settings
+				Settings
 			</button>
 		</div>
 	{/if}
