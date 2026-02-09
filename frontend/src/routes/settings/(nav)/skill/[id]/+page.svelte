@@ -1,5 +1,4 @@
 <script lang="ts">
-	import { onMount } from "svelte";
 	import { page } from "$app/state";
 
 	interface DetailedSkill {
@@ -62,21 +61,35 @@
 	let loading = $state(true);
 	let error = $state<string | null>(null);
 
-	onMount(async () => {
+	// Reactive effect that runs whenever page.params.id changes
+	$effect(() => {
 		const skillId = page.params.id;
-		try {
-			const res = await fetch(`/api/agent-skills/${skillId}`);
-			if (res.ok) {
-				const data = await res.json();
-				skill = data;
-			} else {
-				error = "Could not load skill details";
-			}
-		} catch (e) {
-			error = "Failed to fetch skill information";
-		} finally {
-			loading = false;
-		}
+		
+		// Reset state when skill ID changes
+		loading = true;
+		error = null;
+		skill = null;
+
+		fetch(`/api/agent-skills/${skillId}`)
+			.then((res) => {
+				if (res.ok) {
+					return res.json();
+				} else {
+					error = "Could not load skill details";
+					return null;
+				}
+			})
+			.then((data) => {
+				if (data) {
+					skill = data;
+				}
+			})
+			.catch(() => {
+				error = "Failed to fetch skill information";
+			})
+			.finally(() => {
+				loading = false;
+			});
 	});
 </script>
 

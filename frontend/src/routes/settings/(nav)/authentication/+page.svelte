@@ -158,6 +158,21 @@
 	let countdownInterval: ReturnType<typeof setInterval> | null = null;
 	let timeDisplay = $state(getTimeRemaining());
 	let expiryTimeDisplay = $state(getExpirationTime());
+	let showFullToken = $state(false);
+
+	function getMaskedToken(): string {
+		if (!authToken) return "";
+		if (showFullToken) return authToken;
+		// Show first 8 and last 4 characters
+		if (authToken.length <= 12) return authToken;
+		return `${authToken.substring(0, 8)}...${authToken.substring(authToken.length - 4)}`;
+	}
+
+	function copyTokenToClipboard() {
+		if (authToken) {
+			navigator.clipboard.writeText(authToken);
+		}
+	}
 
 	$effect(() => {
 		if (authStatus === 'authenticated' && authTokenExpiry) {
@@ -332,6 +347,38 @@
 					class="w-full rounded-lg border border-gray-300 bg-white px-4 py-3 font-mono text-sm text-gray-900 placeholder-gray-400 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:cursor-not-allowed disabled:bg-gray-100 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 dark:placeholder-gray-500 dark:disabled:bg-gray-800"
 				/>
 			</div>
+
+			<!-- Access Token Display -->
+			{#if authStatus === "authenticated" && authToken}
+				<div>
+					<label class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">
+						Access Token
+					</label>
+					<div class="flex items-center gap-2">
+						<code
+							class="flex-1 overflow-x-auto rounded-lg bg-gray-100 px-4 py-3 font-mono text-xs text-gray-800 dark:bg-gray-700 dark:text-gray-200"
+						>
+							{getMaskedToken()}
+						</code>
+						<button
+							type="button"
+							onclick={() => (showFullToken = !showFullToken)}
+							class="rounded-lg border border-gray-300 bg-white px-3 py-2 text-xs font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-600"
+							title={showFullToken ? "Hide token" : "Show full token"}
+						>
+							{showFullToken ? "👁️" : "👁️‍🗨️"}
+						</button>
+						<button
+							type="button"
+							onclick={copyTokenToClipboard}
+							class="rounded-lg border border-gray-300 bg-white px-3 py-2 text-xs font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-600"
+							title="Copy to clipboard"
+						>
+							📋
+						</button>
+					</div>
+				</div>
+			{/if}
 
 			<!-- Action Buttons -->
 			<div class="flex gap-3">
