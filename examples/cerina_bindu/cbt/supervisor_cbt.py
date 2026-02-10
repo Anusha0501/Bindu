@@ -18,8 +18,8 @@ from uuid import UUID, uuid4
 from bindu.penguin.bindufy import bindufy
 from bindu.utils.logging import get_logger
 
-from .langgraph_integration import LangGraphWorkflowAdapter
-from .state_mapper import (
+from langgraph_integration import LangGraphWorkflowAdapter
+from state_mapper import (
     build_langgraph_input,
     protocol_state_to_bindu_artifact,
     bindu_message_from_artifact,

@@ -9,20 +9,21 @@ cbt_env_path = Path(__file__).parent / ".env"
 load_dotenv(dotenv_path=cbt_env_path)
 
 from langchain_openai import ChatOpenAI
-from .workflow import create_workflow
-from .state import create_initial_state
+from workflow import create_workflow
+from state import create_initial_state
 
 
 def get_llm_client(api_key: Optional[str] = None) -> ChatOpenAI:
-    api_key = api_key or os.getenv("OPENAI_API_KEY")
+    api_key = api_key or os.getenv("OPENROUTER_API_KEY")
     if not api_key:
-        raise ValueError("OPENAI_API_KEY not set")
+        raise ValueError("OPENROUTER_API_KEY not set")
 
-    base_url = os.getenv("OPENAI_BASE_URL", "https://api.openai.com/v1")
+    base_url = "https://openrouter.ai/api/v1"
+    model_name = "openai/gpt-oss-120b"
     return ChatOpenAI(
         api_key=api_key,
         base_url=base_url,
-        model="gpt-4o-mini",
+        model=model_name,
         temperature=0.7,
     )
 

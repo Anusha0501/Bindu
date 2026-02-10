@@ -1,94 +1,69 @@
 """
-FAQ Agent Example for Bindu 🌻
-
-This example demonstrates how to build a simple FAQ-style agent
-using Bindu. The agent responds to common questions about Bindu
-and helps new users understand how agent handlers work.
-
-How to run:
-    python examples/faq_agent.py
-
-After starting, open:
-    http://localhost:3773/docs
+Bindu Docs QA Agent 🌻
+Answers questions about Bindu documentation.
 """
 
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
+
 from bindu.penguin.bindufy import bindufy
+from agno.agent import Agent
+from agno.models.openrouter import OpenRouter
+from agno.tools.duckduckgo import DuckDuckGoTools
 
 # ---------------------------------------------------------------------------
-# Predefined FAQ data
+# Agent Configuration
 # ---------------------------------------------------------------------------
-# This dictionary maps common user questions (in lowercase)
-# to their corresponding answers.
-#
-# Keeping FAQs in a simple dictionary makes this example:
-# - Easy to read
-# - Easy to extend
-# - Beginner-friendly
-FAQ_DATA = {
-    "what is bindu": "Bindu is an identity, communication, and payments layer for AI agents.",
-    "what protocols does bindu support": "Bindu supports A2A, AP2, and X402 protocols.",
-    "is bindu open source": "Yes, Bindu is fully open source under the Apache 2.0 license.",
-    "how do agents communicate": "Agents communicate using open protocols and task-based workflows.",
-}
+agent = Agent(
+    name="Bindu Docs Agent",
+    instructions="""
+    You are an expert assistant for Bindu (GetBindu).
+    
+    TASK:
+    1. Search the Bindu documentation (docs.getbindu.com) for the user's query.
+    2. Answer the question clearly.
+    
+    FORMATTING RULES:
+    - Return your answer in CLEAN Markdown.
+    - Use '##' for main headers.
+    - Use bullet points for lists.
+    - Do NOT wrap the entire response in JSON code blocks. Just return the text.
+    - At the end, include a '### Sources' section with links found.
+    """,
+    model=OpenRouter(
+        id="openai/gpt-oss-120b",
+        api_key=os.getenv("OPENROUTER_API_KEY"),
+    ),
+    tools=[DuckDuckGoTools()],
+    markdown=True,
+)
 
 # ---------------------------------------------------------------------------
-# Agent handler
+# Handler (FIXED)
 # ---------------------------------------------------------------------------
-# This function is called by Bindu whenever the agent receives a message.
-# It receives the full conversation history as a list of messages.
-def handler(messages):
-    """
-    Handle incoming messages and return an appropriate FAQ response.
+def handler(messages: list[dict[str, str]]):
+    """Process messages and return agent response.
 
     Args:
-        messages: List of message dictionaries representing the conversation history.
+        messages: List of message dictionaries containing conversation history
 
     Returns:
-        A string response answering the user's question.
+        Agent response result
     """
-
-    # Extract the latest user message and normalize it
-    user_input = messages[-1]["content"].lower()
-
-    # Check if the user's message matches any known FAQ question
-    for question, answer in FAQ_DATA.items():
-        if question in user_input:
-            return answer
-
-    # Fallback response when no FAQ match is found
-    return (
-        "I don't have an answer for that yet.\n\n"
-        "Try asking:\n"
-        "- What is Bindu?\n"
-        "- What protocols does Bindu support?\n"
-        "- Is Bindu open source?"
-    )
-
+    result = agent.run(input=messages)
+    return result
 # ---------------------------------------------------------------------------
-# Agent configuration
+# Bindu config
 # ---------------------------------------------------------------------------
-# This configuration defines how the agent appears and runs in Bindu.
 config = {
-    # Author email used for agent identity and registration
-    "author": "anushasingh0501@gmail.com",
-
-    # Human-readable agent name
-    "name": "faq_agent",
-
-    # Short description shown in agent metadata
-    "description": "A simple FAQ agent for answering common questions",
-
-    # Local deployment configuration
+    "author": "your.email@example.com",
+    "name": "bindu_docs_agent",
+    "description": "Answers questions about Bindu documentation",
     "deployment": {"url": "http://localhost:3773", "expose": True},
-
-    # Skills are descriptive metadata that help with agent discovery
-    "skills": ["skills/question-answering"]
-,
+    "skills": ["skills/question-answering", "skills/pdf-processing"],
 }
 
-# ---------------------------------------------------------------------------
-# Bindufy the agent
-# ---------------------------------------------------------------------------
-# This call transforms the handler and configuration into
-# a fully networked, discoverable Bindu agent and starts the server.
+# Run the Bindu wrapper
 bindufy(config, handler)

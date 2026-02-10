@@ -29,28 +29,37 @@ Structured CBT Response
 ## Quick Start
 
 ### Prerequisites
-- Python 3.11+
-- OpenAI API key (or ChatAnywhere proxy)
-- Bindu running locally
+- Python 3.12+
+- OpenRouter API key
+- uv package manager
+- Bindu installed in project root
 
 ### 1. Set Environment Variables
 
-Create `.env` file in `examples/cerina_bindu/cbt/`:
+Create `.env` file in `examples/cerina_bindu/cbt/` with only:
 
 ```bash
-cp .env.example .env
-# Edit .env and add your OpenAI API key
+OPENROUTER_API_KEY=your_openrouter_api_key_here
+```
 
-### 2. Start the CBT Supervisor
+### 2. Install Dependencies
 
 ```bash
 # From Bindu root directory
-python examples/cerina_bindu/cbt/supervisor_cbt.py
+uv sync
+```
+
+### 3. Start the CBT Supervisor
+
+```bash
+# From Bindu root directory
+cd examples/cerina_bindu/cbt
+uv run python supervisor_cbt.py
 ```
 
 The agent will start on `http://localhost:3773`
 
-### 3. Send a Message
+### 4. Send a Message
 
 Open your browser to `http://localhost:3773/docs` and use the chat interface, or:
 
@@ -63,7 +72,7 @@ curl -X POST http://localhost:3773/ \
     "params": {
       "message": {
         "role": "user",
-        "parts": [{"kind": "text", "text": "I am overwhelmed with sleep"}],
+        "parts": [{"kind": "text", "text": "I am overwhelmed with sleep problems"}],
         "kind": "message",
         "messageId": "msg-001",
         "contextId": "ctx-001",
@@ -79,13 +88,15 @@ curl -X POST http://localhost:3773/ \
 
 ### File Structure
 
-- **`supervisor_cbt.py`** - Bindu agent handler that accepts Bindu messages
+- **`supervisor_cbt.py`** - Main Bindu agent handler with `@bindufy` decorator
 - **`langgraph_integration.py`** - Adapter that initializes and invokes the LangGraph workflow
 - **`state_mapper.py`** - Bidirectional mapping between ProtocolState and Bindu artifact format
-- **`agents.py`** - Three agent implementations (Drafter, SafetyGuardian, ClinicalCritic)
-- **`workflow.py`** - LangGraph workflow orchestration logic
-- **`state.py`** - ProtocolState schema and utilities
-- **`utils.py`** - Helper functions for logging and state management
+- **`agents.py`** - Three specialized agent implementations (Drafter, SafetyGuardian, ClinicalCritic)
+- **`workflow.py`** - LangGraph workflow orchestration logic with node definitions
+- **`state.py`** - ProtocolState schema and state management utilities
+- **`utils.py`** - Helper functions for logging and error handling
+- **`database.py`** - Database models for session persistence (optional)
+- **`skills/cbt-therapy-skill/`** - Bindu skill definition and metadata
 
 ### State Management
 
@@ -97,50 +108,64 @@ curl -X POST http://localhost:3773/ \
 
 ### Message Flow
 
-1. **Bindu receives message** → `supervisor_cbt.handler()`
-2. **Extract user intent** from message parts
+1. **Bindu receives message** → `supervisor_cbt.handler()` via `@bindufy` decorator
+2. **Extract user intent** from message parts using `state_mapper.extract_text_from_bindu_message()`
 3. **Map to LangGraph input** using `state_mapper.build_langgraph_input()`
 4. **Invoke workflow** via `LangGraphWorkflowAdapter.invoke()`
-5. **Map output** to Bindu artifact format using `state_mapper.protocol_state_to_bindu_artifact()`
-6. **Return response** as structured Bindu artifact
+5. **Multi-agent processing** through Drafter → Safety Guardian → Clinical Critic
+6. **Map output** to Bindu artifact format using `state_mapper.protocol_state_to_bindu_artifact()`
+7. **Return response** as structured Bindu artifact with safety scores
 
 ### Agent Roles
 
 | Agent | Role | Output |
 |-------|------|--------|
 | **Drafter** | Generates initial CBT exercise draft | `current_draft` |
-| **SafetyGuardian** | Validates clinical safety & ethics | `safety_verdict`, `safety_score` |
-| **ClinicalCritic** | Reviews therapeutic quality | `clinical_critique`, `clinical_score` |
+| **SafetyGuardian** | Validates clinical safety & ethics | `safety_verdict`, `safety_score` (0-100) |
+| **ClinicalCritic** | Reviews therapeutic quality | `clinical_critique`, `clinical_score` (0-100) |
 
-## Background
+### Model Configuration
+
+- **Provider**: OpenRouter
+- **Model**: `openai/gpt-oss-120b`
+- **Temperature**: 0.7 (balanced creativity and consistency)
+- **API**: Uses OpenRouter's API endpoint
+
+## Skills Integration
+
+The CBT agent includes a Bindu skill definition in `skills/cbt-therapy-skill/`:
+
+- **Skill ID**: `cbt-therapy-skill`
+- **Capabilities**: CBT protocol generation, safety validation, quality assessment
+- **Input/Output**: JSON format for structured data exchange
+- **Tags**: therapy, mental-health, cbt, wellness, self-help
 
 ## Background
 
 This example is based on [Cerina Protocol Foundry](https://github.com/Danish137/cerina-protocol-foundry),
 a research project for generating therapeutic CBT protocols using multi-agent LLM orchestration.
 
-**For this Bindu integration**, the design has been simplified:
-- **Removed**: SQLite persistence (one-shot invocation, no multi-turn state)
+**For this Bindu integration**, the design has been optimized:
+- **Removed**: SQLite persistence (one-shot invocation for privacy)
 - **Removed**: Async checkpointers (stateless execution)
 - **Removed**: MCP servers and RPC layer (direct LangGraph invocation)
+- **Added**: Bindu protocol compliance with `@bindufy` decorator
+- **Added**: OpenRouter integration with `openai/gpt-oss-120b`
+- **Added**: Skills folder with proper Bindu skill definition
 - **Kept**: Core multi-agent orchestration logic (Drafter → Safety → Critic)
 
-This makes the example lightweight and easy to integrate while preserving the sophisticated agent workflow.
+This makes the example lightweight, secure, and easy to integrate while preserving the sophisticated agent workflow.
 
 ## Dependencies
 
-Create a `requirements.txt` in the `cerina_bindu/cbt/` folder:
+All dependencies are managed through the root `pyproject.toml`:
 
-```
-langchain>=0.3.0
-langchain-openai>=0.2.0
-langgraph>=0.2.0
-python-dotenv>=1.0.0
-```
-
-Or install directly:
 ```bash
-pip install langchain langchain-openai langgraph python-dotenv
+# Core dependencies already included in bindu project
+langchain>=1.2.9
+langchain-openai>=1.1.8
+langgraph>=1.0.8
+python-dotenv>=1.1.0
 ```
 
 

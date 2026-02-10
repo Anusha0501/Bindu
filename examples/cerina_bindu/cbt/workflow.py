@@ -6,8 +6,8 @@ Implements a Supervisor-Worker pattern with autonomous decision-making.
 from typing import Literal
 from langgraph.graph import StateGraph, END
 
-from .state import ProtocolState, add_draft_version
-from .agents import (
+from state import ProtocolState, add_draft_version
+from agents import (
     DrafterAgent,
     SafetyGuardianAgent,
     ClinicalCriticAgent,

@@ -1,15 +1,14 @@
 from agno.agent import Agent
-from agno.models.google import Gemini
-from agno.models.groq import Groq
+from agno.models.openrouter import OpenRouter
 import os
 
 
 def build_reflection_agent():
     return Agent(
         name="Reflection Agent",
-        model=Gemini(
-            id="gemini-2.5-flash",
-            api_key=os.getenv("GOOGLE_API_KEY"),
+        model=OpenRouter(
+            id="openai/gpt-oss-120b",
+            api_key=os.getenv("OPENROUTER_API_KEY"),
             temperature=0
         ),
         description="""You are a strict JSON-only quality evaluation agent.
@@ -45,5 +44,5 @@ Example Input: "Machine Learning is a subset of AI that uses algorithms to learn
 Example Output: {"quality":"good","issues":[],"fix_strategy":""}
 
 Remember: ONLY output the JSON object, nothing else.""",
-  
+
     )

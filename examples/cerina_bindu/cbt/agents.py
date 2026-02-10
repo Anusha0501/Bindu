@@ -11,8 +11,8 @@ import json
 from pathlib import Path
 from dotenv import load_dotenv
 
-from .state import ProtocolState
-from .utils import log_agent_activity
+from state import ProtocolState
+from utils import log_agent_activity
 
 # Load environment variables from .env file in cbt folder
 env_path = Path(__file__).parent / ".env"
@@ -21,17 +21,18 @@ load_dotenv(dotenv_path=env_path)
 
 def get_llm():
     """Get the LLM instance using OpenAI API"""
-    api_key = os.getenv("OPENAI_API_KEY")
+    api_key = os.getenv("OPENROUTER_API_KEY")
     if not api_key:
         raise ValueError(
-            "OPENAI_API_KEY not found. Get your key from https://platform.openai.com/api-keys"
+            "OPENROUTER_API_KEY not found. Get your key from https://openrouter.ai/keys"
         )
 
-    base_url = os.getenv("OPENAI_BASE_URL", "https://api.openai.com/v1")
+    base_url = "https://openrouter.ai/api/v1"
 
-    # Using gpt-4o-mini for cost efficiency
+    # Using OpenRouter's GPT model
+    model_name = "openai/gpt-oss-120b"
     return ChatOpenAI(
-        api_key=api_key, base_url=base_url, model="gpt-4o-mini", temperature=0.7
+        api_key=api_key, base_url=base_url, model=model_name, temperature=0.7
     )
 
 

@@ -6,7 +6,7 @@
 
 A production-grade multi-agent system built on top of **Bindu — the identity, communication & payments layer for AI agents.**
 
-This project demonstrates how to design, orchestrate, and deploy a **collaborative society of autonomous AI agents** that can **plan, research, summarize, critique, reflect, and self-improve** — using a protocol-first, composable architecture.
+This project demonstrates how to design, orchestrate, and deploy a **collaborative society of autonomous AI agents** that can **plan, research, summarize, critique, reflect, and self-improve** — using a protocol-first, composable architecture with **OpenRouter's `openai/gpt-oss-120b` model**.
 
 ---
 
@@ -48,7 +48,7 @@ Complex intelligence **emerges from collaboration**, not from a single model.
 
 # 🏗️ System Architecture
 
-This swarm consists of **five autonomous agents + one orchestrator**:
+This swarm consists of **five autonomous agents + one orchestrator**, all powered by **OpenRouter's `openai/gpt-oss-120b` model**:
 
 | Component            | Role                                            |
 | -------------------- | ----------------------------------------------- |
@@ -83,7 +83,70 @@ Each stage improves the output — resulting in **self-correcting intelligence**
 
 ---
 
-# 🔬 Design Philosophy
+# � Quick Start
+
+### Prerequisites
+- Python 3.12+
+- OpenRouter API key
+- uv package manager
+- Bindu installed in project root
+
+### 1. Set Environment Variables
+
+Create `.env` file in `examples/agent_swarm/`:
+
+```bash
+cp .env.example .env
+# Edit .env and add your OpenRouter API key
+```
+
+```bash
+OPENROUTER_API_KEY=sk-or-v1-your-api-key-here
+```
+
+### 2. Install Dependencies
+
+```bash
+# From Bindu root directory
+uv sync
+```
+
+### 3. Start the Agent Swarm
+
+```bash
+# From Bindu root directory
+cd examples/agent_swarm
+uv run python bindu_super_agent.py
+```
+
+The agent swarm will start on `http://localhost:3780`
+
+### 4. Test the Swarm
+
+```bash
+curl -X POST http://localhost:3780/ \
+  -H "Content-Type: application/json" \
+  -d '{
+    "jsonrpc": "2.0",
+    "method": "message/send",
+    "params": {
+      "message": {
+        "role": "user",
+        "parts": [{"kind": "text", "text": "What is quantum computing?"}],
+        "kind": "message",
+        "messageId": "msg-001",
+        "contextId": "ctx-001",
+        "taskId": "task-001"
+      },
+      "configuration": {"acceptedOutputModes": ["application/json"]}
+    },
+    "id": "1"
+  }'
+```
+
+---
+
+# � Design Philosophy
 
 ### 1. Protocol-First Architecture
 
@@ -132,9 +195,12 @@ examples/
     ├── critic_agent.py         # Review & refinement agent
     ├── reflection_agent.py     # Self-evaluation & improvement agent
     ├── orchestrator.py         # Multi-agent execution pipeline
-    ├── run_swarm.py            # Local CLI runner
-    ├── test_planner.py         # Planner validation tests
-    └── bindu_super_agent.py    # Entry point – launches full swarm on Bindu
+    ├── bindu_super_agent.py    # Entry point – launches full swarm on Bindu
+    ├── skills/
+    │   └── agent-swarm-intelligence/
+    │       └── skill.yaml     # Bindu skill definition
+    ├── .env.example            # Environment variables template
+    └── README.md               # This documentation
 ```
 
 ---
@@ -147,8 +213,16 @@ Each agent is built using:
 
 ```python
 from agno.agent import Agent
-from agno.models.openai import OpenAIChat
+from agno.models.openrouter import OpenRouter
 ```
+
+All agents use **OpenRouter's `openai/gpt-oss-120b` model** with temperature settings optimized for their specific roles:
+
+- **Planner**: 0.0 (deterministic JSON output)
+- **Researcher**: 0.3 (creative research)
+- **Summarizer**: 0.2 (balanced clarity)
+- **Critic**: 0.1 (minimal creativity)
+- **Reflection**: 0.0 (consistent evaluation)
 
 Each agent follows:
 
@@ -214,8 +288,8 @@ setx OPENAI_API_KEY "your_openai_key"
 setx GOOGLE_API_KEY "your_gemini_key"
 
 # macOS / Linux
-export OPENAI_API_KEY="your_openai_key"
-export GOOGLE_API_KEY="your_gemini_key"
+export OPENAI_API_KEY="your_openai_key"  # pragma: allowlist secret
+export GOOGLE_API_KEY="your_gemini_key"  # pragma: allowlist secret
 ```
 
 ### OpenRouter (Optional)
@@ -227,7 +301,7 @@ setx OPENAI_API_KEY "your_openrouter_key"
 
 # macOS / Linux
 export OPENAI_API_BASE="https://openrouter.ai/api/v1"
-export OPENAI_API_KEY="your_openrouter_key"
+export OPENAI_API_KEY="your_openrouter_key"  # pragma: allowlist secret
 ```
 
 ---

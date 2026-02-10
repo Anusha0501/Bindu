@@ -1,23 +1,33 @@
-"""
-Beginner Zero-Config Bindu Agent
+"""Zero-Configuration Beginner Agent
 
-Purpose:
-- Help first-time users run Bindu locally in under 1 minute
-- No database, Redis, or cloud dependencies
-- Safe default agent for learning Bindu fundamentals
+A minimal Bindu agent for first-time users.
+No external dependencies - perfect for learning Bindu basics.
+
+Features:
+- Zero configuration required
+- Simple, friendly responses
+- Web search capability
+- OpenRouter integration with gpt-oss-120b
+
+Usage:
+    python beginner_zero_config_agent.py
+
+Environment:
+    Requires OPENROUTER_API_KEY in .env file
 """
 
 from bindu.penguin.bindufy import bindufy
 from agno.agent import Agent
-from agno.models.openai import OpenAIChat
-import os
+from agno.models.openrouter import OpenRouter
+from agno.tools.duckduckgo import DuckDuckGoTools
+from dotenv import load_dotenv
+load_dotenv()  # Load environment variables from .env file
+
 
 agent = Agent(
     instructions="You are a friendly assistant that explains things simply.",
-    model = OpenAIChat(
-    id="grok-beta",
-    base_url="https://api.x.ai/v1"
-)
+    model=OpenRouter(id="openai/gpt-oss-120b"),
+    tools=[DuckDuckGoTools()],
 )
 
 config = {
@@ -28,7 +38,7 @@ config = {
         "url": "http://localhost:3774",
         "expose": True,
     },
-    "skills": [],
+    "skills": ["skills/question-answering", "skills/pdf-processing"],
 }
 
 def handler(messages):

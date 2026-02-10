@@ -1,6 +1,19 @@
-"""Minimal Bindu agent — responds with whatever the user sends.
+"""Echo Testing Agent
 
-Useful as a sanity check that Bindu is installed and running correctly.
+A minimal Bindu agent for testing connectivity.
+Echoes back user input to verify the system is working.
+
+Features:
+- Simple echo functionality
+- No external dependencies
+- Perfect for testing Bindu installation
+- Lightweight and fast
+
+Usage:
+    python echo_simple_agent.py
+
+Environment:
+    No environment variables required
 """
 
 from bindu.penguin.bindufy import bindufy
@@ -24,7 +37,7 @@ config = {
     "name": "echo_agent",
     "description": "A basic echo agent for quick testing.",
     "deployment": {"url": "http://localhost:3773", "expose": True},
-    "skills": [],
+    "skills": ["skills/question-answering", "skills/pdf-processing"],
 }
 
 bindufy(config, handler)

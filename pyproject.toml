@@ -57,6 +57,15 @@ dependencies = [
     "pyperclip==1.11.0",
     # Security
     "detect-secrets==1.5.0",
+    "dotenv>=0.9.9",
+    "agno>=2.4.8",
+    "ddgs>=9.10.0",
+    "openai>=2.17.0",
+    "openrouter>=0.6.0",
+    "langchain>=1.2.9",
+    "langchain-openai>=1.1.8",
+    "langgraph>=1.0.8",
+    "python-dotenv>=1.1.0",
 ]
 
 [project.optional-dependencies]

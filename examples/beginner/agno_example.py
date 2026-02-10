@@ -1,21 +1,32 @@
-"""Example of creating a research assistant agent using Bindu and Agno.
+"""Research Assistant Agent with Web Search
 
-This example demonstrates how to create a simple research assistant agent
-that uses DuckDuckGo for web searches and can be deployed as a Bindu agent.
+A Bindu agent that performs research using DuckDuckGo web search.
+Provides comprehensive, well-researched answers on any topic.
 
-Run with: bindu examples/agno_example.py
-Or set environment variables directly and run: python examples/agno_example.py
+Features:
+- Web search via DuckDuckGo
+- Research and summarization capabilities
+- OpenRouter integration with gpt-oss-120b
+
+Usage:
+    python agno_example.py
+
+Environment:
+    Requires OPENROUTER_API_KEY in .env file
 """
+
+from dotenv import load_dotenv
+load_dotenv()  # Load environment variables from .env file
 
 from bindu.penguin.bindufy import bindufy
 from agno.agent import Agent
 from agno.tools.duckduckgo import DuckDuckGoTools
-from agno.models.Open import OpenAIChat
+from agno.models.openrouter import OpenRouter
 
 # Define your agent
 agent = Agent(
     instructions="You are a research assistant that finds and summarizes information.",
-    model=OpenAIChat(id="gpt-4o"),
+    model=OpenRouter(id="openai/gpt-oss-120b"),
     tools=[DuckDuckGoTools()],
 )
 
@@ -32,13 +43,7 @@ config = {
         "cors_origins": ["http://localhost:5173"]
     },
     "skills": ["skills/question-answering", "skills/pdf-processing"],
-    "execution_cost": {
-        "amount": "$0.0001",
-        "token": "USDC",
-        "network": "base-sepolia",
-        "pay_to_address": "0x2654bb8B272f117c514aAc3d4032B1795366BA5d",
-        "protected_methods": ["message/send"],
-    },
+    
     # Negotiation API keys loaded from: OPENROUTER_API_KEY, MEM0_API_KEY, EXA_API_KEY
 }
 

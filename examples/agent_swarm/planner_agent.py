@@ -1,14 +1,14 @@
 from agno.agent import Agent
-from agno.models.google import Gemini
+from agno.models.openrouter import OpenRouter
 import os
 
 
 def build_planner_agent():
     return Agent(
         name="Planner Agent",
-        model=Gemini(
-            id="gemini-2.5-flash",  # Fast and good at following instructions
-            api_key=os.getenv("GOOGLE_API_KEY"),
+        model=OpenRouter(
+            id="openai/gpt-oss-120b",  # Fast and good at following instructions
+            api_key=os.getenv("OPENROUTER_API_KEY"),
             temperature=0
         ),
         description="""You are a strict JSON-only planning agent.
@@ -25,7 +25,7 @@ Your EXACT output format:
 
 Available agents:
 - researcher: Deep research on topics
-- summarizer: Create concise summaries  
+- summarizer: Create concise summaries
 - critic: Critical analysis and evaluation
 
 Example input: "What is quantum computing?"

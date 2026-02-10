@@ -55,6 +55,7 @@ if __name__ == "__main__":
             "expose": True,
             "protocol_version": "1.0.0"
         },
+        "skills": ["skills/agent-swarm-intelligence"],
         "storage": {"type": "memory"},
         "scheduler": {"type": "memory"}
     }
