@@ -48,6 +48,8 @@ Built with a distributed architecture (Task Manager, scheduler, storage), Bindu 
 
 ---
 
+<br/>
+
 ## 🎥 Watch Bindu in Action
 
 <div align="center">
@@ -56,6 +58,7 @@ Built with a distributed architecture (Task Manager, scheduler, storage), Bindu 
   </a>
 </div>
 
+<br/>
 
 ## 📋 Prerequisites
 
@@ -77,6 +80,8 @@ uv --version
 ```
 
 ---
+
+<br/>
 
 ## 📦 Installation
 <details>
@@ -124,6 +129,8 @@ uv sync --dev
 </details>
 
 ---
+
+<br/>
 
 ## 🚀 Quick Start
 
@@ -388,9 +395,13 @@ Output:
 
 </details>
 
+ 
+
 ---
 
-## � Core Features
+ 
+
+## 🚀 Core Features
 
 | Feature | Description | Documentation |
 |---------|-------------|---------------|
@@ -408,6 +419,8 @@ Output:
 
 ---
 
+<br/>
+
 ## 🎨 Chat UI
 
 Bindu includes a beautiful chat interface at `http://localhost:5173`. Navigate to the `frontend` folder and run `npm run dev` to start the server.
@@ -417,6 +430,8 @@ Bindu includes a beautiful chat interface at `http://localhost:5173`. Navigate t
 </p>
 
 ---
+
+<br/>
 
 ## 🌐 Bindu Directory
 
@@ -437,6 +452,8 @@ When you create an agent using the cookiecutter template, it includes a pre-conf
 Manual registration process is currently in development.
 
 ---
+
+<br/>
 
 ## 🌌 The Vision
 
@@ -472,6 +489,8 @@ NightSky enables swarms of agents. Each Bindu is a dot annotating agents with th
 
 ---
 
+<br/>
+
 ## 🛠️ Supported Agent Frameworks
 
 Bindu is **framework-agnostic** and tested with:
@@ -486,6 +505,8 @@ Want integration with your favorite framework? [Let us know on Discord](https://
 
 ---
 
+<br/>
+
 ## 🧪 Testing
 
 Bindu maintains **64%+ test coverage**:
@@ -495,6 +516,8 @@ uv run pytest -n auto --cov=bindu --cov-report= && coverage report --skip-covere
 ```
 
 ---
+
+<br/>
 
 ## 🔧 Troubleshooting
 
@@ -528,6 +551,8 @@ Set-ExecutionPolicy RemoteSigned -Scope CurrentUser
 
 ---
 
+<br/>
+
 ## 🤝 Contributing
 
 We welcome contributions! Join us on [Discord](https://discord.gg/3w5zuYUuwt). Pick the channel that best matches your contribution.
@@ -545,11 +570,15 @@ pre-commit run --all-files
 
 ---
 
+<br/>
+
 ## 📜 License
 
 Bindu is open-source under the [Apache License 2.0](https://choosealicense.com/licenses/apache-2.0/).
 
 ---
+
+<br/>
 
 ## 💬 Community
 
@@ -559,6 +588,8 @@ We 💛 contributions! Whether you're fixing bugs, improving documentation, or b
 - ⭐ [Star the repository](https://github.com/getbindu/Bindu) if you find it useful!
 
 ---
+
+<br/>
 
 ## 👥 Active Moderators
 
@@ -605,6 +636,8 @@ Our dedicated moderators help maintain a welcoming and productive community:
 
 ---
 
+<br/>
+
 ## 🙏 Acknowledgements
 
 Grateful to these projects:
@@ -620,6 +653,8 @@ Grateful to these projects:
 
 ---
 
+<br/>
+
 ## 🗺️ Roadmap
 
 - [ ] GRPC transport support
@@ -633,11 +668,15 @@ Grateful to these projects:
 
 ---
 
+<br/>
+
 ## 🎓 Workshops
 
 - [AI Native in Action: Agent Symphony](https://www.meetup.com/ai-native-amsterdam/events/311066899/) - [Slides](https://docs.google.com/presentation/d/1SqGXI0Gv_KCWZ1Mw2SOx_kI0u-LLxwZq7lMSONdl8oQ/edit)
 
 ---
+
+<br/>
 
 ## ⭐ Star History
 
